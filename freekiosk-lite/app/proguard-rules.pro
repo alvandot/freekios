@@ -1,0 +1,1 @@
+# FreeKiosk Lite release rules.

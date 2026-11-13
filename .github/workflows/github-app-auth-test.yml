@@ -1,0 +1,42 @@
+name: GitHub App Authentication Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - freekiosk-lite-ci
+    paths:
+      - .github/workflows/github-app-auth-test.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App Token
+        id: app-token
+        if: ${{ secrets.APP_ID != '' && secrets.APP_PRIVATE_KEY != '' }}
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: alvandot
+          repositories: freekios
+          permission-contents: read
+
+      - name: Use workflow token
+        id: workflow-token
+        if: ${{ secrets.APP_ID == '' || secrets.APP_PRIVATE_KEY == '' }}
+        run: echo "token=${GITHUB_TOKEN}" >> "$GITHUB_OUTPUT"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Verify repository access
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || steps.workflow-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/alvandot/freekios --jq '.full_name'
+          gh api repos/alvandot/freekios/branches/freekiosk-lite-ci --jq '.name'

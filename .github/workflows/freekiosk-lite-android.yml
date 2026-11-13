@@ -1,0 +1,50 @@
+name: FreeKiosk Lite Android CI
+
+on:
+  push:
+    branches:
+      - freekiosk-lite-ci
+    paths:
+      - "freekiosk-lite/**"
+      - ".github/workflows/freekiosk-lite-android.yml"
+  pull_request:
+    paths:
+      - "freekiosk-lite/**"
+      - ".github/workflows/freekiosk-lite-android.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: freekiosk-lite
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: freekiosk-lite-debug-apk
+          path: freekiosk-lite/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
