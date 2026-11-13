@@ -17,6 +17,7 @@ jobs:
     steps:
       - name: Generate GitHub App Token
         id: app-token
+        if: ${{ secrets.APP_ID != '' && secrets.APP_PRIVATE_KEY != '' }}
         uses: actions/create-github-app-token@v1
         with:
           app-id: ${{ secrets.APP_ID }}
@@ -25,9 +26,16 @@ jobs:
           repositories: freekios
           permission-contents: read
 
+      - name: Use workflow token
+        id: workflow-token
+        if: ${{ secrets.APP_ID == '' || secrets.APP_PRIVATE_KEY == '' }}
+        run: echo "token=${GITHUB_TOKEN}" >> "$GITHUB_OUTPUT"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
       - name: Verify repository access
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || steps.workflow-token.outputs.token }}
         run: |
           set -euo pipefail
           gh api repos/alvandot/freekios --jq '.full_name'
