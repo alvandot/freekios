@@ -21,7 +21,6 @@ jobs:
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          installation-id: 181728918
           owner: alvandot
           repositories: freekios
           permission-contents: read
