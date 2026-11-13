@@ -1,8 +1,12 @@
-
 name: GitHub App Authentication Test
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - freekiosk-lite-ci
+    paths:
+      - .github/workflows/github-app-auth-test.yml
 
 permissions:
   contents: read
