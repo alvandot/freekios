@@ -1,6 +1,7 @@
 package com.freekiosk.lite;
 
-import android.net.Uri;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 final class KioskConfig {
     private static final String DEFAULT_URL = "https://example.com";
@@ -14,9 +15,13 @@ final class KioskConfig {
         }
 
         String value = configuredUrl.trim();
-        Uri uri = Uri.parse(value);
-        if ("http".equals(uri.getScheme()) || "https".equals(uri.getScheme())) {
-            return value;
+        try {
+            String scheme = new URI(value).getScheme();
+            if ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme)) {
+                return value;
+            }
+        } catch (URISyntaxException ignored) {
+            // Invalid URLs use the safe default.
         }
 
         return DEFAULT_URL;
