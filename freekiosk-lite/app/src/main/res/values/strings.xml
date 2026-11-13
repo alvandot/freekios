@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">FreeKiosk Lite</string>
+    <string name="default_kiosk_url">https://example.com</string>
+</resources>
