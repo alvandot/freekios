@@ -1,0 +1,31 @@
+
+name: GitHub App Authentication Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          installation-id: 181728918
+          owner: alvandot
+          repositories: freekios
+          permission-contents: read
+
+      - name: Verify repository access
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/alvandot/freekios --jq '.full_name'
+          gh api repos/alvandot/freekios/branches/freekiosk-lite-ci --jq '.name'
